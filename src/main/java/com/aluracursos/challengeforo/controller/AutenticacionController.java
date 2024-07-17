@@ -27,12 +27,12 @@ public class AutenticacionController {
 
     @PostMapping
     public ResponseEntity autenticarUsuario(@RequestBody @Valid DatosAutenticacionUsuario datosAutenticacionUsuario){
-        System.out.println(datosAutenticacionUsuario.email());
-        System.out.println(datosAutenticacionUsuario.contrasena());
+        //System.out.println(datosAutenticacionUsuario.email());
+        //System.out.println(datosAutenticacionUsuario.contrasena());
         Authentication authtoken = new UsernamePasswordAuthenticationToken(datosAutenticacionUsuario.email(),datosAutenticacionUsuario.contrasena());
         var usuarioAutenticado = authenticationManager.authenticate(authtoken);
         var JWTtoken = tokenService.generarToken((Usuario) usuarioAutenticado.getPrincipal());
-        System.out.println(JWTtoken);
+        //System.out.println(JWTtoken);
         return ResponseEntity.ok(new DatosJWTToken(JWTtoken));
     }
 

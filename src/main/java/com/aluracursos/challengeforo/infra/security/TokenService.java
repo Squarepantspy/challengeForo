@@ -47,7 +47,7 @@ public class TokenService {
         if (token == null) {
             throw new RuntimeException("El token no puede ser nulo");
         }
-        System.out.println(token.length());
+        //System.out.println(token.length());
         try {
             Algorithm algorithm = Algorithm.HMAC256(apiSecret);
             JWTVerifier verifier = JWT.require(algorithm)
