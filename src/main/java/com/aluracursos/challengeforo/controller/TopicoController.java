@@ -3,21 +3,18 @@ package com.aluracursos.challengeforo.controller;
 
 
 import com.aluracursos.challengeforo.domain.curso.CursoRepository;
-import com.aluracursos.challengeforo.domain.topico.DatosRegistroTopico;
-import com.aluracursos.challengeforo.domain.topico.DatosRespuestaTopico;
-import com.aluracursos.challengeforo.domain.topico.Topico;
-import com.aluracursos.challengeforo.domain.topico.TopicoRepository;
+import com.aluracursos.challengeforo.domain.topico.*;
 import com.aluracursos.challengeforo.domain.usuarios.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 
@@ -55,6 +52,39 @@ public class TopicoController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping
+    public ResponseEntity<Page<DatosRespuestaTopico>> listadoTopico(Pageable paginacion){
+        return ResponseEntity.ok(topicoRepository.findByStatusTrue(paginacion).map(topico -> new DatosRespuestaTopico(topico.getId(), topico.getTitulo(), topico.getMensaje(), topico.getFechaCreacion())));
+    }
+
+    @GetMapping("/{id}")
+    @Transactional
+    public ResponseEntity<DatosRespuestaTopico> retornarDatosTopico(@PathVariable Long id){
+        Topico topico = topicoRepository.getReferenceById(id);
+        var datosTopico = new DatosRespuestaTopico(topico.getId(), topico.getTitulo(), topico.getMensaje(), topico.getFechaCreacion());
+        return ResponseEntity.ok(datosTopico);
+    }
+
+    //actualizar topico
+    //por regla de negocio no se podra actualizar el id del autor del topico ni el curso, tampoco su fecha de creacion ya que esto es una modificacion
+    @PutMapping
+    @Transactional
+    public ResponseEntity actualizarTopico(@RequestBody @Valid DatosActualizarTopico datosActualizarTopico){
+        Topico topico = topicoRepository.getReferenceById(datosActualizarTopico.id());
+        topico.actualizarDatos(datosActualizarTopico);
+        return ResponseEntity.ok(new DatosRespuestaTopico(topico.getId(), topico.getTitulo(), topico.getMensaje(), topico.getFechaCreacion()));
+    }
+    //delete nivel logico
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity eliminarTopico(@PathVariable Long id){
+        Topico topico = topicoRepository.getReferenceById(id);
+        topico.desactivarTopico();
+        return ResponseEntity.noContent().build();
+    }
+
+
 
 
 
